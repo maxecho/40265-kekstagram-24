@@ -1,8 +1,4 @@
-<<<<<<< Updated upstream
-/* Hope i'll make it just on time */
-=======
 // Вспомогательные функции ил прошлого задания
-
 function getRandomPositiveInteger(numberA, numberB) {
   const lower = Math.ceil(Math.min(Math.abs(numberA), Math.abs(numberB)));
   const upper = Math.floor(Math.max(Math.abs(numberA), Math.abs(numberB)));
@@ -11,14 +7,10 @@ function getRandomPositiveInteger(numberA, numberB) {
 }
 
 // Функция чтобы вытаскивать случайный элемент из массива
-
 const getRandomArrayElement = (elements) => elements[_.random(0, elements.length - 1)];
 
-// Генерируем временные данные для проекта
-
 const NUMBER_OF_GENERATED_DESCRIPTIONS = 25;
-const numberOfCommentsPerPhoto = getRandomPositiveInteger(1, 2);
-
+const NUMBER_OF_COMMENTS_PER_PHOTO = 2;
 const MESSEGE = [
   'Всё отлично!',
   'В целом всё неплохо. Но не всё.',
@@ -40,28 +32,39 @@ const NAMES = [
   'Таисия',
 ];
 
-const generateComments = () => ({
-  id: getRandomPositiveInteger(1, 200),
+let idCounter = 1;
+
+const generateComments = (id, avatar, message, name) => ({
+  id,
   avatar: `img/avatar-${  getRandomPositiveInteger(0, 6)  }.svg`,
   message: getRandomArrayElement(MESSEGE),
   name: getRandomArrayElement(NAMES),
 });
 
-const commentsPerPhoto = Array.from(
-  { length: numberOfCommentsPerPhoto },
-  generateComments,
-);
+const commentsPerPhoto = [];
 
-const createPhotoDescription = () => ({
-  id: getRandomPositiveInteger(1, 25),
+for(let i = 0; i < NUMBER_OF_COMMENTS_PER_PHOTO; i++) {
+  const newComment = generateComments(
+    idCounter
+  );
+  commentsPerPhoto.push(newComment);
+  idCounter++;
+}
+
+const generatePhotoDescription = (id, url, description, likes, comment) => ({
+  id,
   url: `photos/${  getRandomPositiveInteger(1, 25)  }.jpg`,
-  description: 'Ещё одна фотография с тонной коррекции и умной подписью',
+  description: 'Фотография с тонной коррекции и подписью',
   likes: getRandomPositiveInteger(15, 200),
   comment: commentsPerPhoto,
-});
+})
 
-const photoDescription = Array.from(
-  { length: NUMBER_OF_GENERATED_DESCRIPTIONS },
-  createPhotoDescription,
-);
->>>>>>> Stashed changes
+const photoDescription = [];
+
+for(let i = 0; i < NUMBER_OF_GENERATED_DESCRIPTIONS; i++) {
+  const newDescription = generatePhotoDescription(
+    idCounter
+  );
+  photoDescription.push(newDescription);
+  idCounter++;
+}
