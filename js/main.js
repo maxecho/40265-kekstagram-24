@@ -61,4 +61,3 @@ const photoDescription = Array.from(
   createPhotoDescription,
 );
 
-photoDescription;
