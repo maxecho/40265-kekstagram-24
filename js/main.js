@@ -1,14 +1,3 @@
-// Вспомогательные функции ил прошлого задания
-function getRandomPositiveInteger(numberA, numberB) {
-  const lower = Math.ceil(Math.min(Math.abs(numberA), Math.abs(numberB)));
-  const upper = Math.floor(Math.max(Math.abs(numberA), Math.abs(numberB)));
-  const result = Math.random() * (upper - lower + 1) + lower;
-  return Math.floor(result);
-}
-
-// Функция чтобы вытаскивать случайный элемент из массива
-const getRandomArrayElement = (elements) => elements[_.random(0, elements.length - 1)];
-
 const NUMBER_OF_GENERATED_DESCRIPTIONS = 25;
 const NUMBER_OF_COMMENTS_PER_PHOTO = 2;
 const MESSEGE = [
@@ -32,39 +21,42 @@ const NAMES = [
   'Таисия',
 ];
 
-let idCounter = 1;
+// Вспомогательные функции из прошлого задания
+function getRandomPositiveInteger(numberA, numberB) {
+  const lower = Math.ceil(Math.min(Math.abs(numberA), Math.abs(numberB)));
+  const upper = Math.floor(Math.max(Math.abs(numberA), Math.abs(numberB)));
+  const result = Math.random() * (upper - lower + 1) + lower;
+  return Math.floor(result);
+}
+// Функция чтобы вытаскивать случайный элемент из массива
+const getRandomArrayElement = (elements) => elements[_.random(0, elements.length - 1)];
 
-const generateComments = (id, avatar, message, name) => ({
-  id,
+const commentsIdsSet = new Set();
+const commentsIdsNumber = NUMBER_OF_COMMENTS_PER_PHOTO * NUMBER_OF_GENERATED_DESCRIPTIONS;
+while(commentsIdsSet.size !== commentsIdsNumber) {
+  commentsIdsSet.add(getRandomPositiveInteger(1,commentsIdsNumber*2));
+}
+const commentsIds = Array.from(commentsIdsSet);
+
+const generateComments = () => ({
+  id: commentsIds.pop(),
   avatar: `img/avatar-${  getRandomPositiveInteger(0, 6)  }.svg`,
   message: getRandomArrayElement(MESSEGE),
   name: getRandomArrayElement(NAMES),
 });
 
-const commentsPerPhoto = [];
-
-for(let i = 0; i < NUMBER_OF_COMMENTS_PER_PHOTO; i++) {
-  const newComment = generateComments(
-    idCounter
-  );
-  commentsPerPhoto.push(newComment);
-  idCounter++;
-}
-
-const generatePhotoDescription = (id, url, description, likes, comment) => ({
+const createPhotoDescription = (_, id) => ({
   id,
-  url: `photos/${  getRandomPositiveInteger(1, 25)  }.jpg`,
+  url: `photos/${id}.jpg`,
   description: 'Фотография с тонной коррекции и подписью',
   likes: getRandomPositiveInteger(15, 200),
-  comment: commentsPerPhoto,
-})
+  comment: Array.from(
+    {length: NUMBER_OF_COMMENTS_PER_PHOTO },
+    generateComments,
+  ),
+});
 
-const photoDescription = [];
-
-for(let i = 0; i < NUMBER_OF_GENERATED_DESCRIPTIONS; i++) {
-  const newDescription = generatePhotoDescription(
-    idCounter
-  );
-  photoDescription.push(newDescription);
-  idCounter++;
-}
+const photoDescription = Array.from(
+  {length: NUMBER_OF_GENERATED_DESCRIPTIONS },
+  createPhotoDescription,
+);
