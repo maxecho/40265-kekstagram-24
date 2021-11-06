@@ -45,7 +45,7 @@ const generateComments = () => ({
   name: getRandomArrayElement(NAMES),
 });
 
-const createPhotoDescription = (_, id) => ({
+const createPhotoDescription = (__, id) => ({
   id,
   url: `photos/${id}.jpg`,
   description: 'Фотография с тонной коррекции и подписью',
@@ -60,3 +60,5 @@ const photoDescription = Array.from(
   {length: NUMBER_OF_GENERATED_DESCRIPTIONS },
   createPhotoDescription,
 );
+
+photoDescription;
