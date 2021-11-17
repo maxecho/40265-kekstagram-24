@@ -1,21 +1,15 @@
+const DEBOUNCE_TIMEOUT = 500;
+
 //Функция, возвращающая случайное целое число из переданного диапазона включительно
 const generateRandomNumber = (from, to) => {
   if (from < 0 || to < 0 || to <= from) {
     return -1;
   }
-  const result = Math.floor(Math.random() * (to - from) + from);
-  return result;
-};
-
-//Проверка длины собщения
-const testingStringLength = (inputString, acceptLength) => {
-  const stringLength = inputString.length;
-  return (stringLength <= acceptLength);
+  return Math.floor(Math.random() * (to - from) + from);
 };
 
 //События для кнопок
 const isEscapeKey = (evt) => evt.key === 'Escape';
-const isEnterKey = (evt) => evt.key === 'Enter';
 
 //Создание NoUiSlider
 const createNoUiSlider = (sliderElement) => {
@@ -41,4 +35,12 @@ const createNoUiSlider = (sliderElement) => {
   });
 };
 
-export { generateRandomNumber, testingStringLength, isEscapeKey, isEnterKey, createNoUiSlider };
+const debounce = (callback) => {
+  let timeoutId;
+  return (...rest) => {
+    clearTimeout(timeoutId);
+    timeoutId = setTimeout(() => callback.apply(this, rest), DEBOUNCE_TIMEOUT);
+  };
+};
+
+export { generateRandomNumber, isEscapeKey, createNoUiSlider, debounce };

@@ -1,4 +1,4 @@
-import { workingForm, setDefaultScale, changeScale, defaultEffectImages, changeEffect } from './form.js';
+import { attachFormEvents, setDefaultScale, changeScale, setDefaultEffect, changeEffect } from './form.js';
 
 const FILE_TYPES = ['gif', 'jpg', 'jpeg', 'png'];
 const bodyTag = document.querySelector('body');
@@ -16,9 +16,9 @@ const importFiles = () => {
     if (file) {
       setDefaultScale();
       changeScale();
-      defaultEffectImages();
+      setDefaultEffect();
       changeEffect();
-      workingForm();
+      attachFormEvents();
       const fileName = file.name.toLowerCase();
       const matches = FILE_TYPES.some((it) => fileName.endsWith(it));
       if (matches) {

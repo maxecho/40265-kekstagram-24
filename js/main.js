@@ -1,6 +1,6 @@
-import { getData } from './back-end.js';
+import { getData } from './backend.js';
 import { workFilter, showErrorMessageFromGetData } from './rendering-thumbnails.js';
-import { importFiles } from './import-file.js';
+import { importFiles } from './import.js';
 
 getData(
   (data) => workFilter(data),

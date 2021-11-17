@@ -12,7 +12,7 @@ const commentsLoader = document.querySelector('.social__comments-loader');
 const socialCommentTemplate = document.querySelector('#social-comment').content.querySelector('.social__comment');
 
 //Зачистка комментариев
-const removeFullScreenPicture = () => {
+const removeComments = () => {
   while (socialComments.firstChild) {
     socialComments.removeChild(socialComments.firstChild);
   }
@@ -43,19 +43,22 @@ const createComment = (comment) => {
 function addComments(comments) {
   const socialCommentFragment = document.createDocumentFragment();
   const quantityComments = comments.length;
-  let commentsIter;
+  let commentIndex;
   if (quantityComments > STEP_OPEN_COMMENTS) {
     socialCommentCount.textContent = `${STEP_OPEN_COMMENTS} из ${quantityComments}`;
     commentsLoader.classList.remove('hidden');
-    commentsIter = STEP_OPEN_COMMENTS;
+    commentIndex = STEP_OPEN_COMMENTS;
   } else {
     socialCommentCount.textContent = `${quantityComments} из ${quantityComments}`;
     commentsLoader.classList.add('hidden');
-    commentsIter = quantityComments;
+    commentIndex = quantityComments;
   }
-  for (let i = 0; i < commentsIter; i++) {
+  for (let i = 0; i < commentIndex; i++) {
     socialCommentFragment.appendChild(createComment(comments[i]));
   }
+
+  socialComments.appendChild(socialCommentFragment);
+
   const onLoadAddCommentsClick = function () {
     const quantityOpenComments = socialComments.children.length;
     let openComments;
@@ -71,41 +74,44 @@ function addComments(comments) {
     socialComments.appendChild(socialCommentFragment);
     socialCommentCount.textContent = `${openComments} из ${quantityComments}`;
   };
-  const onClosedScreenESC = (evt) => {
+
+  const removeEvents = () => {
+    commentsLoader.removeEventListener('click', onLoadAddCommentsClick);
+    document.removeEventListener('keydown', onClosedScreenEsc);
+    closeFullScreen();
+  }
+
+  const onClosedScreenEsc = (evt) => {
     const fullScreenPhoto = document.querySelector('.big-picture').classList.contains('hidden');
     if (isEscapeKey(evt) && !fullScreenPhoto) {
-      commentsLoader.removeEventListener('click', onLoadAddCommentsClick);
-      document.removeEventListener('keydown', onClosedScreenESC);
-      closedFullScreen();
+      removeEvents()
     }
   };
+
   commentsLoader.addEventListener('click', onLoadAddCommentsClick);
   pictureCancel.addEventListener('click', () => {
-    commentsLoader.removeEventListener('click', onLoadAddCommentsClick);
-    document.removeEventListener('keydown', onClosedScreenESC);
-    closedFullScreen();
+    removeEvents()
   }, { once: true });
-  document.addEventListener('keydown', onClosedScreenESC);
-  socialComments.appendChild(socialCommentFragment);
+  document.addEventListener('keydown', onClosedScreenEsc);
 }
 //Функция отловки закрытия по ESC
-const onClosedFullScreenESC = (evt) => {
+const onClosedFullScreenEsc = (evt) => {
   if (isEscapeKey(evt)) {
     evt.preventDefault();
-    closedFullScreen();
+    closeFullScreen();
   }
 };
 
 //Функция закрытия полноэкранного изображения
-function closedFullScreen() {
+function closeFullScreen() {
   bigPicture.classList.add('hidden');
   document.body.classList.remove('modal-open');
-  removeFullScreenPicture();
-  document.removeEventListener('keydown', onClosedFullScreenESC);
+  document.removeEventListener('keydown', onClosedFullScreenEsc);
+  removeComments();
 }
 
 //Обработчик открытия изображения по клику
-const openFullScreenPicture = (pictures, othersUsersPictures) => {
+const bindPictureClickEvents = (pictures, othersUsersPictures) => {
   pictures.forEach((value, index) => {
     value.addEventListener('click', (evt) => {
       evt.preventDefault();
@@ -114,4 +120,4 @@ const openFullScreenPicture = (pictures, othersUsersPictures) => {
   });
 };
 
-export { openFullScreenPicture };
+export { bindPictureClickEvents };

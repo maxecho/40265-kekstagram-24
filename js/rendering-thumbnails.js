@@ -1,21 +1,26 @@
-import { generateRandomNumber } from './helpers.js';
-import { openFullScreenPicture } from './rendering-thumbnails-full-screen.js';
+import { generateRandomNumber, debounce } from './utils.js';
+import { bindPictureClickEvents } from './rendering-thumbnails-full-screen.js';
 
 const RANDOM_PHOTO_COUNT = 10;
+const ACTIVE_BUTTON_CLASS = 'img-filters__button--active';
+const Filters = {
+  default: 'filter-default',
+  random: 'filter-random',
+  discussed: 'filter-discussed',
+}
 const otherUsersPictureContainer = document.querySelector('.pictures');
-const randomPictureTamlate = document.querySelector('#picture').content.querySelector('.picture');
+const randomPictureTemplate = document.querySelector('#picture').content.querySelector('.picture');
 const elementErr = document.querySelector('#error-get-data');
 const imageFilter = document.querySelector('.img-filters');
 const filterButtons = document.querySelectorAll('.img-filters__button');
-const activeButtonClassCss = 'img-filters__button--active';
 
 //Показать фильтры
-const visibleFilter = () => {
+const showFilter = () => {
   imageFilter.classList.remove('img-filters--inactive');
 };
 
 //Удаление миниатюр
-const unrenderThumbnails = () => {
+const removeThumbnails = () => {
   const pictures = document.querySelectorAll('.picture');
   pictures.forEach((picture) => {
     picture.parentNode.removeChild(picture);
@@ -24,21 +29,23 @@ const unrenderThumbnails = () => {
 
 //Отрисовка миниатюр
 const renderThumbnails = (images) => {
-  unrenderThumbnails();
+  removeThumbnails();
+  const randomPictureFragment = document.createDocumentFragment();
   images.forEach((value) => {
-    let randomPicturefragment = document.createDocumentFragment();
-    randomPicturefragment = randomPictureTamlate.cloneNode(true);
-    randomPicturefragment.querySelector('.picture__img').src = value.url;
-    randomPicturefragment.querySelector('.picture__info').querySelector('.picture__likes').textContent = value.likes;
-    randomPicturefragment.querySelector('.picture__info').querySelector('.picture__comments').textContent = value.comments.length;
-    otherUsersPictureContainer.appendChild(randomPicturefragment);
+    let clonedTemplate = randomPictureTemplate.cloneNode(true);
+    clonedTemplate.querySelector('.picture__img').src = value.url;
+    clonedTemplate.querySelector('.picture__info').querySelector('.picture__likes').textContent = value.likes;
+    clonedTemplate.querySelector('.picture__info').querySelector('.picture__comments').textContent = value.comments.length;
+    randomPictureFragment.appendChild(clonedTemplate);
   });
+
+  otherUsersPictureContainer.appendChild(randomPictureFragment)
   const pictures = document.querySelectorAll('.picture');
-  openFullScreenPicture(pictures, images);
+  bindPictureClickEvents(pictures, images);
 };
 
 //Генерация массива со случайными фотками и уникальными
-const generateRandomUnicPictures = (data, len) => {
+const generateRandomUniquePictures = (data, len) => {
   const newData = data.slice(0, data.length - 1);
   const result = [];
   for (let i = 0; i < len; i++) {
@@ -57,30 +64,30 @@ const sortByComments = (data) => {
 };
 
 //Функция выбора данных по условию фильтра
-const selectData = (id, data) => {
-  if (id === 'filter-default') {
+const selectData = debounce((id, data) => {
+  if (id === Filters.default) {
     renderThumbnails(data);
   }
-  if (id === 'filter-random') {
-    renderThumbnails(generateRandomUnicPictures(data, RANDOM_PHOTO_COUNT));
+  if (id === Filters.random) {
+    renderThumbnails(generateRandomUniquePictures(data, RANDOM_PHOTO_COUNT));
   }
-  if (id === 'filter-discussed') {
+  if (id === Filters.discussed) {
     renderThumbnails(sortByComments(data));
   }
-};
+});
 
 //Переменная чтобы вынести данные в глобал
 let loadedData = [];
 
 //Кол-бэк для фильтров
-const selectFilter = (evt) => {
+const onFilterClick = (evt) => {
   evt.preventDefault();
   filterButtons.forEach((button) => {
     if (evt.target === button) {
-      evt.target.classList.add(activeButtonClassCss);
+      evt.target.classList.add(ACTIVE_BUTTON_CLASS);
       selectData(button.id, loadedData);
     } else {
-      button.classList.remove(activeButtonClassCss);
+      button.classList.remove(ACTIVE_BUTTON_CLASS);
     }
   });
 };
@@ -88,7 +95,7 @@ const selectFilter = (evt) => {
 //Обработчик
 const workFilter = (data) => {
   loadedData = data;
-  visibleFilter();
+  showFilter();
   renderThumbnails(data);
   filterButtons.forEach((button) => {
     button.addEventListener('click', onFilterClick);

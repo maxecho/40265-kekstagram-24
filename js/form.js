@@ -2,12 +2,69 @@ import { isEscapeKey, createNoUiSlider } from './utils.js';
 import { sendData } from './backend.js';
 
 const STEP = 25;
-const MAX_VALUE = 100;
-const MIN_VALUE = 25;
+const MAX_SCALE = 100;
+const MIN_SCALE = 25;
 const BORDER_ERROR = '#ff0000';
+const SCALE_MULTIPLIER = 100;
+
+const Effect = {
+  none: {
+    name: 'effect-none',
+  },
+  chrome: {
+    name: 'effect-chrome',
+    min: 0,
+    max: 1,
+    start: 1,
+    step: 0.1,
+    set: 0,
+    filter: 'grayscale',
+    unit: '',
+  },
+  sepia: {
+    name: 'effect-sepia',
+    min: 0,
+    max: 1,
+    start: 1,
+    step: 0.1,
+    set: 0,
+    filter: 'sepia',
+    unit: '',
+  },
+  marvin: {
+    name: 'effect-marvin',
+    min: 0,
+    max: 100,
+    start: 100,
+    step: 1,
+    set: 0,
+    filter: 'invert',
+    unit: '%',
+  },
+  phobos: {
+    name: 'effect-phobos',
+    min: 0,
+    max: 3,
+    start: 3,
+    step: 0.1,
+    set: 0,
+    filter: 'blur',
+    unit: 'px',
+  },
+  heat: {
+    name: 'effect-heat',
+    min: 1,
+    max: 3,
+    start: 3,
+    step: 0.1,
+    set: 1,
+    filter: 'brightness',
+    unit: '',
+  },
+};
+
 const bodyTag = document.querySelector('body');
 const mainTag = document.querySelector('main');
-const uploadFile = document.querySelector('#upload-file');
 const formImageUpload = document.querySelector('#upload-select-image');
 const modalPhotoModification = document.querySelector('.img-upload__overlay');
 const photoPreview = modalPhotoModification.querySelector('.img-upload__preview img');
@@ -15,77 +72,87 @@ const photoPreviewContainer = modalPhotoModification.querySelector('.img-upload_
 const closeButton = modalPhotoModification.querySelector('#upload-cancel');
 const scaleControl = modalPhotoModification.querySelector('.scale');
 const scaleValue = scaleControl.querySelector('.scale__control--value');
-const scaleHiddenValue = scaleControl.querySelector('#scaleHidden');
 const scaleMinus = scaleControl.querySelector('.scale__control--smaller');
 const scalePlus = scaleControl.querySelector('.scale__control--bigger');
-const effectsButtons = modalPhotoModification.querySelectorAll('.effects__radio');
 const sliderElement = document.querySelector('#slider');
 const sliderValue = document.querySelector('.effect-level__value');
 const effectsRadio = document.querySelectorAll('.effects__radio');
 const effectLevel = document.querySelector('.effect-level');
+const uploadEffectsFieldset = document.querySelector('.img-upload__effects');
 const hashtagInput = modalPhotoModification.querySelector('.text__hashtags');
 const commentInput = modalPhotoModification.querySelector('.text__description');
-let validate = true;
-let currentValue = scaleHiddenValue.value * 100;
+let isValid = true;
+let currentValue = MAX_SCALE;
 
 //В задании сказано поставить 100% — ставим
 const setDefaultScale = () => {
-  scaleValue.value = '100%';
-  scaleHiddenValue.value = 1;
-  photoPreviewContainer.style.transform = 'scale(1)';
+  scaleValue.value = `${MAX_SCALE}%`;
+  photoPreview.style.transform = 'scale(1)';
 };
 
 //Увеличение масштаба
-const setCustomScale = (step) => {
-  scaleValue.value = `${step}%`;
-  scaleHiddenValue.value = Number(step / 100);
-  photoPreviewContainer.style.transform = `scale(${step / 100})`;
+const setCustomScale = () => {
+  scaleValue.value = `${currentValue}%`;
+  photoPreview.style.transform = `scale(${currentValue / SCALE_MULTIPLIER})`;
 };
+
+const onChangeScale = (evt) => {
+  if (evt.target === scalePlus && currentValue < MAX_SCALE) {
+    currentValue += STEP;
+    setCustomScale();
+  } else if (evt.target === scaleMinus && currentValue > MIN_SCALE) {
+    currentValue -= STEP;
+    setCustomScale();
+  }
+}
 
 //Смена масштаба
 const changeScale = () => {
-  scaleControl.addEventListener('click', (evt) => {
-    if (evt.target === scalePlus && currentValue < MAX_VALUE) {
-      setCustomScale(Number(currentValue + STEP));
-      currentValue += STEP;
-    } else if (evt.target === scaleMinus && currentValue > MIN_VALUE) {
-      setCustomScale(Number(currentValue - STEP));
-      currentValue -= STEP;
-    }
-  });
+  scaleControl.addEventListener('click', onChangeScale);
 };
 
 //Слайдер
 createNoUiSlider(sliderElement);
 
-//Эффект по умолчанию
-const defaultEffectImages = () => {
-  effectsRadio.forEach((effect) => {
-    if (effect.id === 'effect-none') {
-      effect.setAttribute('checked', 'checked');
+const removeCurrentEffect = () => {
+  for (let i = 0; i < photoPreviewContainer.classList.length; i++) {
+    if (photoPreviewContainer.classList[i].indexOf('effects__preview--') === 0) {
+      photoPreviewContainer.classList.remove(photoPreviewContainer.classList[i])
+      break;
     }
-  });
-  effectLevel.classList.add('hidden');
+  }
   sliderValue.value = '';
-  scaleValue.value = '100%';
-  scaleHiddenValue.value = 1;
-  currentValue = scaleHiddenValue.value * 100;
-  photoPreviewContainer.className = '';
   photoPreviewContainer.style = '';
-  photoPreviewContainer.classList.add('img-upload__preview');
+}
+
+//Эффект по умолчанию
+const setDefaultEffect = () => {
+  document.querySelector(`#${Effect.none.name}`).checked = true
+  effectLevel.classList.add('hidden');
+  removeCurrentEffect()
 };
 
-const generateEffect = (effect, min, max, start, step, set, filter, unit) => {
-  const toUnit = (unit === undefined) ? '' : unit;
+
+//Колбек обработчика
+const onChangeEffectClick = (evt) => {
+  if (!evt.target.classList.contains('effects__radio')) {
+    return;
+  }
+  const effectName = evt.target.id.replace('effect-', '')
+  const {
+    name, unit, min, max,
+    start, step, set, filter,
+  } = Effect[effectName]
+
+  if (name === Effect.none.name) {
+    setDefaultEffect();
+    return;
+  }
+
   effectLevel.classList.remove('hidden');
-  scaleValue.value = '100%';
-  scaleHiddenValue.value = 1;
-  currentValue = scaleHiddenValue.value * 100;
-  photoPreviewContainer.className = '';
-  photoPreviewContainer.style = '';
-  sliderValue.value = '';
-  photoPreviewContainer.classList.add('img-upload__preview');
-  photoPreviewContainer.classList.add(`effects__preview--${effect}`);
+  removeCurrentEffect()
+  photoPreviewContainer.classList.add(`effects__preview--${effectName}`);
+
   sliderElement.noUiSlider.reset();
   sliderElement.noUiSlider.set(set);
   sliderElement.noUiSlider.updateOptions({
@@ -98,36 +165,29 @@ const generateEffect = (effect, min, max, start, step, set, filter, unit) => {
   }, true);
   sliderElement.noUiSlider.on('update', (values, handle) => {
     sliderValue.value = values[handle];
-    photoPreviewContainer.style.filter = `${filter}(${values[handle]}${toUnit})`;
+    photoPreviewContainer.style.filter = `${filter}(${values[handle]}${unit})`;
   });
-};
-
-//Колбек обработчика
-const onChangeEffectClick = (evt) => {
-  if (evt.target.id === 'effect-chrome') {
-    generateEffect('chrome', 0, 1, 0, 0.1, 0, 'grayscale');
-  } else if (evt.target.id === 'effect-sepia') {
-    generateEffect('sepia', 0, 1, 0, 0.1, 0, 'sepia');
-  } else if (evt.target.id === 'effect-marvin') {
-    generateEffect('marvin', 0, 100, 0, 1, 0, 'invert', '%');
-  } else if (evt.target.id === 'effect-phobos') {
-    generateEffect('phobos', 0, 3, 0, 0.1, 0, 'blur', 'px');
-  } else if (evt.target.id === 'effect-heat') {
-    generateEffect('heat', 1, 3, 1, 0.1, 1, 'brightness');
-  } else {
-    defaultEffectImages();
-  }
 };
 
 //Управление эффектами
 const changeEffect = () => {
-  effectsRadio.forEach((effect) => {
-    effect.addEventListener('click', onChangeEffectClick);
-  });
+  uploadEffectsFieldset.addEventListener('click', onChangeEffectClick);
 };
 
 //Проверяем ввод тегов
 const checkSpace = (checkValue) => checkValue !== '';
+
+const onHashtagKeydown = () => {
+  removeValidHandler()
+}
+
+const onHashtagInput = () => {
+  validateHashtag()
+}
+
+const onHashtagBlur = () => {
+  addInvalidHandler()
+}
 
 //Валидатор тегов
 const validateHashtag = () => {
@@ -159,59 +219,44 @@ const validateHashtag = () => {
   for (let i = 0; i < hashtags.length; i++) {
     if (hashtags[i][0] !== '#') {
       hashtagInput.setCustomValidity('#ХЕШТЕГ должен начинаться с решётки => #)');
-      validate = false;
+      isValid = false;
     } else if (hashtags[i].search(removeSymbol) > 0) {
       hashtagInput.setCustomValidity('После решётки/диеза => #, #ХЕШТЕГ должен состоять только из букв и чисел');
-      validate = false;
+      isValid = false;
     } else if (checkDoubleHashtag(i)) {
       hashtagInput.setCustomValidity('Может быть использована только одна решётка/диез => #');
-      validate = false;
+      isValid = false;
     } else if (hashtags[i].length <= 1) {
       hashtagInput.setCustomValidity('#ХЕШТЕГ не может состоять из одного символа');
-      validate = false;
+      isValid = false;
     } else if (hashtags[i].length > 20) {
       hashtagInput.setCustomValidity('#ХЕШТЕГ не может быть длинее 20 символов');
-      validate = false;
+      isValid = false;
     } else if (checkUpLowCase(i)) {
       hashtagInput.setCustomValidity('Один и тот же #ХЕШТЕГ не может быть использован дважды без учёта регистра: #ХЕШТЕГ и #хештег считаются одним и тем же тегом');
-      validate = false;
+      isValid = false;
     } else if (hashtags.length > 5) {
       hashtagInput.setCustomValidity('Использование более пяти #ХЕШТЕГОВ недопустимо');
-      validate = false;
+      isValid = false;
     } else {
       hashtagInput.setCustomValidity('');
-      validate = true;
+      isValid = true;
     }
-  }
-};
-
-//Проверка атрибутов перед сбросом на "по умолчанию"
-const toggleAttribute = (element, elements, attribute) => {
-  if (!element.hasAttribute(attribute)) {
-    elements.forEach((effectsButton) => {
-      effectsButton.removeAttribute(attribute);
-    });
-    element.setAttribute(attribute, '');
-    element.checked = true;
   }
 };
 
 //Сброс настроек при закрытии окна
 const setDefaultSettings = () => {
+  formImageUpload.reset()
   modalPhotoModification.classList.add('hidden');
   bodyTag.classList.remove('modal-open');
-  scaleValue.value = '100%';
-  photoPreview.removeAttribute('class');
-  photoPreview.removeAttribute('style');
-  toggleAttribute(effectsButtons[0], effectsButtons, 'checked');
-  uploadFile.value = '';
-  hashtagInput.value = '';
-  commentInput.value = '';
+  setDefaultEffect()
+  setDefaultScale()
 };
 
 //Обводка ошибки
 const addInvalidHandler = () => {
-  if (!validate && hashtagInput.value) {
+  if (!isValid && hashtagInput.value) {
     hashtagInput.style.borderColor = BORDER_ERROR;
   }
 };
@@ -226,12 +271,19 @@ const onClosedInputEsc = (evt) => {
   if (isEscapeKey(evt) && evt.target !== hashtagInput && evt.target !== commentInput) {
     //Сброс настроек при закрытии окна
     setDefaultSettings();
-    //Удалим лишние обработчики
-    effectsRadio.forEach((effect) => {
-      effect.removeEventListener('click', onChangeEffectClick);
-    });
+    uploadEffectsFieldset.removeEventListener('click', onChangeEffectClick);
+    scaleControl.removeEventListener('click', onChangeScale);
   }
 };
+
+//Колбэк крестика
+const onClosedClick = () => {
+  document.removeEventListener('keydown', onClosedInputEsc);
+  uploadEffectsFieldset.removeEventListener('click', onChangeEffectClick);
+  scaleControl.removeEventListener('click', onChangeScale);
+  setDefaultSettings();
+};
+
 
 //Колбэк обработчика удаления сообщения
 const removeMessage = () => {
@@ -243,15 +295,19 @@ const removeMessage = () => {
   if (errorMessage) {
     mainTag.removeChild(errorMessage);
   }
-  document.removeEventListener('keydown', onRemoveMessageESC);
+  document.removeEventListener('keydown', onRemoveMessageEsc);
 };
 
+const onRemoveMessage = () => {
+  removeMessage();
+}
+
 //Колбэк обработчика удаления сообщения при ESC
-function onRemoveMessageESC(evt) {
+function onRemoveMessageEsc(evt) {
   if (isEscapeKey(evt)) {
     removeMessage();
   }
-  document.removeEventListener('click', removeMessage);
+  document.removeEventListener('click', onRemoveMessage);
   document.removeEventListener('keydown', onClosedInputEsc);
 }
 
@@ -259,10 +315,8 @@ function onRemoveMessageESC(evt) {
 const addMessage = (template) => {
   const messageModal = template.cloneNode(true);
   mainTag.appendChild(messageModal);
-  document.addEventListener('click', removeMessage);
-  document.removeEventListener('keydown', onRemoveMessageESC);
-  document.removeEventListener('keydown', onClosedInputEsc);
-  document.addEventListener('keydown', onRemoveMessageESC);
+  document.addEventListener('click', onRemoveMessage);
+  document.addEventListener('keydown', onRemoveMessageEsc);
   setDefaultSettings();
 };
 
@@ -280,6 +334,7 @@ const showSuccessMessage = () => {
   addMessage(successMessageTemplate);
 };
 
+
 //Колбэк отправки формы
 const onFormSubmit = (evt) => {
   evt.preventDefault();
@@ -287,27 +342,15 @@ const onFormSubmit = (evt) => {
   setDefaultSettings();
 };
 
-//Колбэк крестика
-const onClosedClick = () => {
-  document.removeEventListener('keydown', onClosedInputEsc);
-  effectsRadio.forEach((effect) => {
-    effect.removeEventListener('click', onChangeEffectClick);
-    document.removeEventListener('keydown', onClosedInputEsc);
-  });
-  setDefaultSettings();
-};
-
 //Общая функция
-const workingForm = () => {
+const attachFormEvents = () => {
   validateHashtag();
-  hashtagInput.addEventListener('input', validateHashtag);
-  hashtagInput.addEventListener('blur', addInvalidHandler);
-  hashtagInput.addEventListener('keydown', removeValidHandler);
-  formImageUpload.addEventListener('submit', onFormSubmit);
-  document.removeEventListener('click', removeMessage());
-  closeButton.addEventListener('click', onClosedClick);
-  document.removeEventListener('keydown', onClosedInputEsc);
   document.addEventListener('keydown', onClosedInputEsc);
+  hashtagInput.addEventListener('input', onHashtagInput);
+  hashtagInput.addEventListener('blur', onHashtagBlur);
+  hashtagInput.addEventListener('keydown', onHashtagKeydown);
+  formImageUpload.addEventListener('submit', onFormSubmit);
+  closeButton.addEventListener('click', onClosedClick);
 };
 
-export { workingForm, setDefaultScale, changeScale, defaultEffectImages, changeEffect };
+export { attachFormEvents, setDefaultScale, changeScale, setDefaultEffect, changeEffect };
