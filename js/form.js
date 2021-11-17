@@ -104,7 +104,7 @@ const onChangeScale = (evt) => {
     currentValue -= STEP;
     setCustomScale();
   }
-}
+};
 
 //Смена масштаба
 const changeScale = () => {
@@ -117,19 +117,19 @@ createNoUiSlider(sliderElement);
 const removeCurrentEffect = () => {
   for (let i = 0; i < photoPreviewContainer.classList.length; i++) {
     if (photoPreviewContainer.classList[i].indexOf('effects__preview--') === 0) {
-      photoPreviewContainer.classList.remove(photoPreviewContainer.classList[i])
+      photoPreviewContainer.classList.remove(photoPreviewContainer.classList[i]);
       break;
     }
   }
   sliderValue.value = '';
   photoPreviewContainer.style = '';
-}
+};
 
 //Эффект по умолчанию
 const setDefaultEffect = () => {
-  document.querySelector(`#${Effect.none.name}`).checked = true
+  document.querySelector(`#${Effect.none.name}`).checked = true;
   effectLevel.classList.add('hidden');
-  removeCurrentEffect()
+  removeCurrentEffect();
 };
 
 
@@ -138,11 +138,11 @@ const onChangeEffectClick = (evt) => {
   if (!evt.target.classList.contains('effects__radio')) {
     return;
   }
-  const effectName = evt.target.id.replace('effect-', '')
+  const effectName = evt.target.id.replace('effect-', '');
   const {
     name, unit, min, max,
     start, step, set, filter,
-  } = Effect[effectName]
+  } = Effect[effectName];
 
   if (name === Effect.none.name) {
     setDefaultEffect();
@@ -150,7 +150,7 @@ const onChangeEffectClick = (evt) => {
   }
 
   effectLevel.classList.remove('hidden');
-  removeCurrentEffect()
+  removeCurrentEffect();
   photoPreviewContainer.classList.add(`effects__preview--${effectName}`);
 
   sliderElement.noUiSlider.reset();
@@ -178,16 +178,16 @@ const changeEffect = () => {
 const checkSpace = (checkValue) => checkValue !== '';
 
 const onHashtagKeydown = () => {
-  removeValidHandler()
-}
+  removeValidHandler();
+};
 
 const onHashtagInput = () => {
-  validateHashtag()
-}
+  validateHashtag();
+};
 
 const onHashtagBlur = () => {
-  addInvalidHandler()
-}
+  addInvalidHandler();
+};
 
 //Валидатор тегов
 const validateHashtag = () => {
@@ -247,11 +247,11 @@ const validateHashtag = () => {
 
 //Сброс настроек при закрытии окна
 const setDefaultSettings = () => {
-  formImageUpload.reset()
+  formImageUpload.reset();
   modalPhotoModification.classList.add('hidden');
   bodyTag.classList.remove('modal-open');
-  setDefaultEffect()
-  setDefaultScale()
+  setDefaultEffect();
+  setDefaultScale();
 };
 
 //Обводка ошибки
@@ -300,7 +300,7 @@ const removeMessage = () => {
 
 const onRemoveMessage = () => {
   removeMessage();
-}
+};
 
 //Колбэк обработчика удаления сообщения при ESC
 function onRemoveMessageEsc(evt) {
