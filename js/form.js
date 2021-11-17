@@ -104,7 +104,7 @@ const onChangeScale = (evt) => {
     currentValue -= STEP;
     setCustomScale();
   }
-}
+};
 
 //Смена масштаба
 const changeScale = () => {
@@ -117,17 +117,17 @@ createNoUiSlider(sliderElement);
 const removeCurrentEffect = () => {
   for (let i = 0; i < photoPreviewContainer.classList.length; i++) {
     if (photoPreviewContainer.classList[i].indexOf('effects__preview--') === 0) {
-      photoPreviewContainer.classList.remove(photoPreviewContainer.classList[i])
+      photoPreviewContainer.classList.remove(photoPreviewContainer.classList[i]);
       break;
     }
   }
   sliderValue.value = '';
   photoPreviewContainer.style = '';
-}
+};
 
 //Эффект по умолчанию
 const setDefaultEffect = () => {
-  document.querySelector(`#${Effect.none.name}`).checked = true
+  document.querySelector(`#${Effect.none.name}`).checked = true;
   effectLevel.classList.add('hidden');
   removeCurrentEffect()
 };
