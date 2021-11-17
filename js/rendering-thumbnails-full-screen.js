@@ -79,18 +79,18 @@ function addComments(comments) {
     commentsLoader.removeEventListener('click', onLoadAddCommentsClick);
     document.removeEventListener('keydown', onClosedScreenEsc);
     closeFullScreen();
-  }
+  };
 
   const onClosedScreenEsc = (evt) => {
     const fullScreenPhoto = document.querySelector('.big-picture').classList.contains('hidden');
     if (isEscapeKey(evt) && !fullScreenPhoto) {
-      removeEvents()
+      removeEvents();
     }
   };
 
   commentsLoader.addEventListener('click', onLoadAddCommentsClick);
   pictureCancel.addEventListener('click', () => {
-    removeEvents()
+    removeEvents();
   }, { once: true });
   document.addEventListener('keydown', onClosedScreenEsc);
 }
