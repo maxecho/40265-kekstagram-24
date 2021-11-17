@@ -76,7 +76,6 @@ const scaleMinus = scaleControl.querySelector('.scale__control--smaller');
 const scalePlus = scaleControl.querySelector('.scale__control--bigger');
 const sliderElement = document.querySelector('#slider');
 const sliderValue = document.querySelector('.effect-level__value');
-const effectsRadio = document.querySelectorAll('.effects__radio');
 const effectLevel = document.querySelector('.effect-level');
 const uploadEffectsFieldset = document.querySelector('.img-upload__effects');
 const hashtagInput = modalPhotoModification.querySelector('.text__hashtags');
