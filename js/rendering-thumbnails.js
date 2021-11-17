@@ -32,14 +32,14 @@ const renderThumbnails = (images) => {
   removeThumbnails();
   const randomPictureFragment = document.createDocumentFragment();
   images.forEach((value) => {
-    let clonedTemplate = randomPictureTemplate.cloneNode(true);
+    const clonedTemplate = randomPictureTemplate.cloneNode(true);
     clonedTemplate.querySelector('.picture__img').src = value.url;
     clonedTemplate.querySelector('.picture__info').querySelector('.picture__likes').textContent = value.likes;
     clonedTemplate.querySelector('.picture__info').querySelector('.picture__comments').textContent = value.comments.length;
     randomPictureFragment.appendChild(clonedTemplate);
   });
 
-  otherUsersPictureContainer.appendChild(randomPictureFragment)
+  otherUsersPictureContainer.appendChild(randomPictureFragment);
   const pictures = document.querySelectorAll('.picture');
   bindPictureClickEvents(pictures, images);
 };
