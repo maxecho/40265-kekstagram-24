@@ -1,7 +1,7 @@
 # Личный проект «Кекстаграм»
 
-* Студент: [Yaroslav Lashch](https://up.htmlacademy.ru/javascript/24/user/40265).
-* Наставник: Дина Абрамова
+* Студент: [Ярослав Лащ](https://up.htmlacademy.ru/javascript/24/user/1845025).
+* Наставник: [Дина Абрамова](https://htmlacademy.ru/profile/id1483099).
 
 ---
 

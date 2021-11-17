@@ -12,5 +12,3 @@ globals:
   _: readonly
   L: readonly
   noUiSlider: readonly
-
-extends: "htmlacademy/vanilla"

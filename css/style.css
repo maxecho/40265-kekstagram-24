@@ -1416,3 +1416,20 @@ main {
 .hidden {
   display: none;
 }
+
+.error-get-data {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 25px;
+  background: #fff;
+  justify-content: center;
+  align-items: center;
+}
+
+.error-get-data-text {
+  color: #ff0000;
+  font-weight: bold;
+}

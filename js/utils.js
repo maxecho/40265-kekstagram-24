@@ -1,18 +1,46 @@
-// Функция соответсвия кол-ва символов в строке заданному числу
-function checkStringLength (string, length) {
-  return string.length <= length;
-}
-checkStringLength(2,5);
-// Функция создающая рандомное целое число из диапозона
-function getRandomPositiveInteger (numberA, numberB) {
-  const lower = Math.ceil(Math.min(Math.abs(numberA), Math.abs(numberB)));
-  const upper = Math.floor(Math.max(Math.abs(numberA), Math.abs(numberB)));
-  const result = Math.random() * (upper - lower + 1) + lower;
-  return Math.floor(result);
-}
-getRandomPositiveInteger(5,100);
+const DEBOUNCE_TIMEOUT = 500;
 
-// Функция чтобы вытаскивать случайный элемент из массива
-const getRandomArrayElement = (elements) => elements[_.random(0, elements.length - 1)];
+//Функция, возвращающая случайное целое число из переданного диапазона включительно
+const generateRandomNumber = (from, to) => {
+  if (from < 0 || to < 0 || to <= from) {
+    return -1;
+  }
+  return Math.floor(Math.random() * (to - from) + from);
+};
 
-export {checkStringLength, getRandomPositiveInteger, getRandomArrayElement};
+//События для кнопок
+const isEscapeKey = (evt) => evt.key === 'Escape';
+
+//Создание NoUiSlider
+const createNoUiSlider = (sliderElement) => {
+  noUiSlider.create(sliderElement, {
+    range: {
+      min: 0,
+      max: 1,
+    },
+    start: 0,
+    step: 0.1,
+    connect: 'lower',
+    format: {
+      to: function (value) {
+        if (Number.isInteger(value)) {
+          return value.toFixed(0);
+        }
+        return value.toFixed(1);
+      },
+      from: function (value) {
+        return parseFloat(value);
+      },
+    },
+  });
+};
+
+const debounce = (callback) => {
+  let timeoutId;
+  return (...rest) => {
+    clearTimeout(timeoutId);
+    timeoutId = setTimeout(() => callback.apply(this, rest), DEBOUNCE_TIMEOUT);
+  };
+};
+
+export { generateRandomNumber, isEscapeKey, createNoUiSlider, debounce };
