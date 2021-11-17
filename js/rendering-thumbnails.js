@@ -7,7 +7,7 @@ const Filters = {
   default: 'filter-default',
   random: 'filter-random',
   discussed: 'filter-discussed',
-}
+};
 const otherUsersPictureContainer = document.querySelector('.pictures');
 const randomPictureTemplate = document.querySelector('#picture').content.querySelector('.picture');
 const elementErr = document.querySelector('#error-get-data');
