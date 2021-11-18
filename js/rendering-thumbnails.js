@@ -93,7 +93,7 @@ const onFilterClick = (evt) => {
 };
 
 //Обработчик
-const workFilter = (data) => {
+const setupFilters = (data) => {
   loadedData = data;
   showFilter();
   renderThumbnails(data);
@@ -103,8 +103,8 @@ const workFilter = (data) => {
 };
 
 //Функция вывода текста ошибки при загрузки данных
-function showErrorMessageFromGetData() {
+const showErrorMessageFromGetData = () => {
   elementErr.style.display = 'flex';
 }
 
-export { workFilter, showErrorMessageFromGetData };
+export { setupFilters, showErrorMessageFromGetData };

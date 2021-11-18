@@ -22,15 +22,13 @@ const createNoUiSlider = (sliderElement) => {
     step: 0.1,
     connect: 'lower',
     format: {
-      to: function (value) {
+      to: (value) => {
         if (Number.isInteger(value)) {
           return value.toFixed(0);
         }
         return value.toFixed(1);
       },
-      from: function (value) {
-        return parseFloat(value);
-      },
+      from: (value) => parseFloat(value),
     },
   });
 };

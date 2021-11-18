@@ -10,7 +10,7 @@ const modalPhotoModification = bodyTag.querySelector('.img-upload__overlay');
 
 //Фнкция импорта файлов
 const importFiles = () => {
-  const onUploadFileClick = function (evt) {
+  const onUploadFileClick = (evt) => {
     evt.preventDefault();
     const file = evt.target.files[0];
     if (file) {

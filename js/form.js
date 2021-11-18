@@ -6,6 +6,9 @@ const MAX_SCALE = 100;
 const MIN_SCALE = 25;
 const BORDER_ERROR = '#ff0000';
 const SCALE_MULTIPLIER = 100;
+const MIN_HASHTAG_LENGTH = 1;
+const MAX_HASHTAG_LENGTH = 20;
+const MAX_HASHTAGS_COUNT = 5;
 
 const Effect = {
   none: {
@@ -76,7 +79,6 @@ const scaleMinus = scaleControl.querySelector('.scale__control--smaller');
 const scalePlus = scaleControl.querySelector('.scale__control--bigger');
 const sliderElement = document.querySelector('#slider');
 const sliderValue = document.querySelector('.effect-level__value');
-const effectsRadio = document.querySelectorAll('.effects__radio');
 const effectLevel = document.querySelector('.effect-level');
 const uploadEffectsFieldset = document.querySelector('.img-upload__effects');
 const hashtagInput = modalPhotoModification.querySelector('.text__hashtags');
@@ -182,7 +184,7 @@ const onHashtagKeydown = () => {
 };
 
 const onHashtagInput = () => {
-  validateHashtag();
+  isValid = validateHashtag();
 };
 
 const onHashtagBlur = () => {
@@ -192,6 +194,11 @@ const onHashtagBlur = () => {
 //Валидатор тегов
 const validateHashtag = () => {
   const hashtagInputValue = hashtagInput.value;
+  if (!hashtagInputValue) {
+    hashtagInput.setCustomValidity('');
+    return true;
+  }
+
   const hashtags = hashtagInputValue.trim().toLowerCase().split(' ').filter(checkSpace);
   const removeSymbol = /[^a-zA-Zа-яА-Я0-9ё#]/g;
 
@@ -219,30 +226,36 @@ const validateHashtag = () => {
   for (let i = 0; i < hashtags.length; i++) {
     if (hashtags[i][0] !== '#') {
       hashtagInput.setCustomValidity('#ХЕШТЕГ должен начинаться с решётки => #)');
-      isValid = false;
-    } else if (hashtags[i].search(removeSymbol) > 0) {
+      return false;
+    }
+    if (hashtags[i].search(removeSymbol) > 0) {
       hashtagInput.setCustomValidity('После решётки/диеза => #, #ХЕШТЕГ должен состоять только из букв и чисел');
-      isValid = false;
-    } else if (checkDoubleHashtag(i)) {
+      return false;
+    }
+    if (checkDoubleHashtag(i)) {
       hashtagInput.setCustomValidity('Может быть использована только одна решётка/диез => #');
-      isValid = false;
-    } else if (hashtags[i].length <= 1) {
+      return false;
+    }
+    if (hashtags[i].length <= MIN_HASHTAG_LENGTH) {
       hashtagInput.setCustomValidity('#ХЕШТЕГ не может состоять из одного символа');
-      isValid = false;
-    } else if (hashtags[i].length > 20) {
+      return false;
+    }
+    if (hashtags[i].length > MAX_HASHTAG_LENGTH) {
       hashtagInput.setCustomValidity('#ХЕШТЕГ не может быть длинее 20 символов');
-      isValid = false;
-    } else if (checkUpLowCase(i)) {
+      return false;
+    }
+    if (checkUpLowCase(i)) {
       hashtagInput.setCustomValidity('Один и тот же #ХЕШТЕГ не может быть использован дважды без учёта регистра: #ХЕШТЕГ и #хештег считаются одним и тем же тегом');
-      isValid = false;
-    } else if (hashtags.length > 5) {
+      return false;
+    }
+    if (hashtags.length > MAX_HASHTAGS_COUNT) {
       hashtagInput.setCustomValidity('Использование более пяти #ХЕШТЕГОВ недопустимо');
-      isValid = false;
-    } else {
-      hashtagInput.setCustomValidity('');
-      isValid = true;
+      return false;
     }
   }
+
+  hashtagInput.setCustomValidity('');
+  return true;
 };
 
 //Сброс настроек при закрытии окна
@@ -344,7 +357,7 @@ const onFormSubmit = (evt) => {
 
 //Общая функция
 const attachFormEvents = () => {
-  validateHashtag();
+  isValid = validateHashtag();
   document.addEventListener('keydown', onClosedInputEsc);
   hashtagInput.addEventListener('input', onHashtagInput);
   hashtagInput.addEventListener('blur', onHashtagBlur);

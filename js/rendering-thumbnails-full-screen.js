@@ -18,29 +18,8 @@ const removeComments = () => {
   }
 };
 
-//Функция отрисовки полноэкранного изображения
-const renderFullScreenPicture = (picture) => {
-  document.body.classList.add('modal-open');
-  bigPicture.classList.remove('hidden');
-  bigPictureImg.src = picture.url;
-  likesCount.textContent = picture.likes;
-  socialCaption.textContent = picture.description;
-  addComments(picture.comments);
-};
-
-//Функция для создания комменатриев
-const createComment = (comment) => {
-  const socialCommentClone = socialCommentTemplate.cloneNode(true);
-  const socialPicture = socialCommentClone.querySelector('.social__picture');
-  const socialText = socialCommentClone.querySelector('.social__text');
-  socialPicture.src = comment.avatar;
-  socialPicture.alt = comment.name;
-  socialText.textContent = comment.message;
-  return socialCommentClone;
-};
-
 //Функция для добавления комменатриев
-function addComments(comments) {
+const addComments = (comments) => {
   const socialCommentFragment = document.createDocumentFragment();
   const quantityComments = comments.length;
   let commentIndex;
@@ -59,7 +38,7 @@ function addComments(comments) {
 
   socialComments.appendChild(socialCommentFragment);
 
-  const onLoadAddCommentsClick = function () {
+  const onLoadAddCommentsClick = () => {
     const quantityOpenComments = socialComments.children.length;
     let openComments;
     if (quantityComments <= quantityOpenComments + STEP_OPEN_COMMENTS) {
@@ -94,12 +73,26 @@ function addComments(comments) {
   }, { once: true });
   document.addEventListener('keydown', onClosedScreenEsc);
 }
-//Функция отловки закрытия по ESC
-const onClosedFullScreenEsc = (evt) => {
-  if (isEscapeKey(evt)) {
-    evt.preventDefault();
-    closeFullScreen();
-  }
+
+//Функция отрисовки полноэкранного изображения
+const renderFullScreenPicture = (picture) => {
+  document.body.classList.add('modal-open');
+  bigPicture.classList.remove('hidden');
+  bigPictureImg.src = picture.url;
+  likesCount.textContent = picture.likes;
+  socialCaption.textContent = picture.description;
+  addComments(picture.comments);
+};
+
+//Функция для создания комменатриев
+const createComment = (comment) => {
+  const socialCommentClone = socialCommentTemplate.cloneNode(true);
+  const socialPicture = socialCommentClone.querySelector('.social__picture');
+  const socialText = socialCommentClone.querySelector('.social__text');
+  socialPicture.src = comment.avatar;
+  socialPicture.alt = comment.name;
+  socialText.textContent = comment.message;
+  return socialCommentClone;
 };
 
 //Функция закрытия полноэкранного изображения
@@ -109,6 +102,14 @@ function closeFullScreen() {
   document.removeEventListener('keydown', onClosedFullScreenEsc);
   removeComments();
 }
+
+//Функция отловки закрытия по ESC
+const onClosedFullScreenEsc = (evt) => {
+  if (isEscapeKey(evt)) {
+    evt.preventDefault();
+    closeFullScreen();
+  }
+};
 
 //Обработчик открытия изображения по клику
 const bindPictureClickEvents = (pictures, othersUsersPictures) => {
