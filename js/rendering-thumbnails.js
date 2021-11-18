@@ -105,6 +105,6 @@ const setupFilters = (data) => {
 //Функция вывода текста ошибки при загрузки данных
 const showErrorMessageFromGetData = () => {
   elementErr.style.display = 'flex';
-}
+};
 
 export { setupFilters, showErrorMessageFromGetData };

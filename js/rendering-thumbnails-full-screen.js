@@ -72,7 +72,7 @@ const addComments = (comments) => {
     removeEvents();
   }, { once: true });
   document.addEventListener('keydown', onClosedScreenEsc);
-}
+};
 
 //Функция отрисовки полноэкранного изображения
 const renderFullScreenPicture = (picture) => {
